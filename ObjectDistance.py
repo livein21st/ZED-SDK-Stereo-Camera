@@ -91,7 +91,7 @@ def main():
                 
                 # Calculating distance
                 obj_position = obj_data.position
-                obj_velocity = 
+                 
                 distance = math.sqrt((obj_position[0]-prePosition[0])*(obj_position[0]-prePosition[0]) + 
                                    (obj_position[1]-prePosition[1])*(obj_position[1]-prePosition[1]) +
                                    (obj_position[2]-prePosition[2])*(obj_position[2]-prePosition[2]))
