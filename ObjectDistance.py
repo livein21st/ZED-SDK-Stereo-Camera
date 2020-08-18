@@ -5,6 +5,7 @@
 import pyzed.sl as sl
 import cv2
 import numpy as np
+import math
 
 id_colors = [(59, 232, 176),
              (25,175,208),
@@ -67,7 +68,7 @@ def main():
     objects = sl.Objects() # Structure containing all the detected objects
 
     #Capture images and depth using point_cloud,
-    mat = sl.Mat()
+    image = sl.Mat()
     depth = sl.Mat()
     point_cloud = sl.Mat()
     
@@ -75,11 +76,12 @@ def main():
         # Grab an image, a RuntimeParameters object must be given to grab()
         if zed.grab(runtime_parameters) == sl.ERROR_CODE.SUCCESS:
             # A new image is available if grab() returns SUCCESS
-            zed.retrieve_image(mat, sl.VIEW.LEFT)
+            zed.retrieve_image(image, sl.VIEW.LEFT)
             zed.retrieve_objects(objects, detection_parameters_rt)
             obj_array = objects.object_list
-            image_data = mat.get_data()
-            obj_label = ''
+            image_data = image.get_data()
+         
+            prePosition = [0,0,0]
             for i in range(len(obj_array)) :
                 obj_data = obj_array[i]
                 bounding_box = obj_data.bounding_box_2d
@@ -87,11 +89,18 @@ def main():
                             (int(bounding_box[2,0]),int(bounding_box[2,1])),
                               get_color_id_gr(int(obj_data.id)), 3)
                 
-                #Getting the info of the object to print          
+                # Calculating distance
                 obj_position = obj_data.position
+                obj_velocity = 
+                distance = math.sqrt((obj_position[0]-prePosition[0])*(obj_position[0]-prePosition[0]) + 
+                                   (obj_position[1]-prePosition[1])*(obj_position[1]-prePosition[1]) +
+                                   (obj_position[2]-prePosition[2])*(obj_position[2]-prePosition[2]))
+
+                #Getting the info of the object to print          
                 obj_label = str(obj_array[i].label)
 
-                cv2.putText(image_data, obj_label, (int(bounding_box[0,0]),int(bounding_box[0,1]-10)), cv2.FONT_HERSHEY_SIMPLEX, 0.5,(255,255,255),1)
+                cv2.putText(image_data, obj_label, (int(bounding_box[0,0]),int(bounding_box[0,1]-30)), cv2.FONT_HERSHEY_SIMPLEX, 0.5,(255,255,255),1)
+                cv2.putText(image_data, str(distance), (int(bounding_box[0,0]),int(bounding_box[0,1]-10)), cv2.FONT_HERSHEY_SIMPLEX, 0.5,(255,255,255),1)
 
             cv2.imshow("ZED", image_data)
 
