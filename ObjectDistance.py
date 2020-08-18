@@ -36,6 +36,7 @@ def main():
    
     runtime_parameters = sl.RuntimeParameters()
     runtime_parameters.sensing_mode = sl.SENSING_MODE.STANDARD  # Use STANDARD sensing mode
+    
     # Setting the depth confidence parameters
     runtime_parameters.confidence_threshold = 100
     runtime_parameters.textureness_confidence_threshold = 100
@@ -69,8 +70,6 @@ def main():
 
     #Capture images and depth using point_cloud,
     image = sl.Mat()
-    depth = sl.Mat()
-    point_cloud = sl.Mat()
     
     while key != 113: # for 'q' key
         # Grab an image, a RuntimeParameters object must be given to grab()
@@ -90,7 +89,7 @@ def main():
                             (int(bounding_box[2,0]),int(bounding_box[2,1])),
                               get_color_id_gr(int(obj_data.id)), 3)
                 
-                #Getting the info of the object to print          
+                #Getting object data         
                 obj_label = str(obj_array[i].label)
                 obj_position = obj_data.position
 
@@ -102,9 +101,8 @@ def main():
                 cv2.putText(image_data, obj_label, (int(bounding_box[0,0]),int(bounding_box[0,1]-30)), cv2.FONT_HERSHEY_SIMPLEX, 0.5,(255,255,255),1)
                 cv2.putText(image_data, str(distance), (int(bounding_box[0,0]),int(bounding_box[0,1]-10)), cv2.FONT_HERSHEY_SIMPLEX, 0.5,(255,255,255),1)
                 
-                # Display
+                prePosition = obj_position
               
-
             cv2.imshow("ZED", image_data)
 
         key = cv2.waitKey(5)
