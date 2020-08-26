@@ -57,15 +57,15 @@ class Feature:
 # =============================================================================
 # NaiveDistance
 # =============================================================================
+naiveDistanceLabel = "NaiveDistance"
 class NaiveDistance(Feature):
     '''
     The NaiveDistance is a Feature that lazily computes distances between each detected person and the previous detected person (first person compared to 0,0,0).
     '''
-    label = "NaiveDistance"
     dependentOn = []
     
     def __init__(self, actors):
-        super.__init__(NaiveDistance.label,actors,NaiveDistance.dependentOn)
+        super.__init__(naiveDistanceLabel,actors,NaiveDistance.dependentOn)
         self.actors = actors
         self.needsTrackPeople = True
         

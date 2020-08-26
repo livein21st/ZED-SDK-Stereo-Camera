@@ -61,7 +61,7 @@ class Cv2Plotter(Actor):
         return arr
     
     expectsValues = [] 
-    expectsValues.append(F.NaiveDistance.label) #list of distances, one for each detected object
+    expectsValues.append(F.naiveDistanceLabel) #list of distances, one for each detected object
     
     def __init__(self):
         super.__init__(Cv2Plotter.expectsValues)
@@ -70,7 +70,7 @@ class Cv2Plotter(Actor):
         '''Plot the next frame.'''
         obj_array = capture.getObjectArray()
         image_data = capture.getImageData()
-        distances = self.values[F.NaiveDistance.label]
+        distances = self.values[F.naiveDistanceLabel]
         
         # For each tracked object....
         for i in range(len(obj_array)):
