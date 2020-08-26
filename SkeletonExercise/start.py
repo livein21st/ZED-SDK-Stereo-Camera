@@ -46,6 +46,8 @@ def main():
 
     while key != 113: # for 'q' key
         # Grab an image, a RuntimeParameters object must be given to grab()
+        ddtry = []
+        ddtry2 = []
         if zed.grab(runtime_parameters) == sl.ERROR_CODE.SUCCESS:
             # A new image is available if grab() returns SUCCESS
             zed.retrieve_image(mat, sl.VIEW.LEFT)
@@ -67,9 +69,14 @@ def main():
                 for bone in sl.BODY_BONES:
                     kp1 = keypoint[bone[0].value]
                     kp2 = keypoint[bone[1].value]
+                   
                     if kp1[0] > 0 and kp1[1] > 0 and kp2[0] > 0 and kp2[1] > 0 :
                         cv2.line(image_data, (int(kp1[0]), int(kp1[1])), (int(kp2[0]), int(kp2[1])), get_color_id_gr(int(obj_data.id)), 2)
-                print(keypoint)
+                ddtry.append(kp1)
+                ddtry2.append(kp2)
+            np.savetxt("C:\\Users\\localadmin\\Desktop\\kp1.csv", ddtry)
+            np.savetxt("C:\\Users\\localadmin\\Desktop\\kp2.csv", ddtry2)
+
             cv2.imshow("ZED", image_data)
             
         key = cv2.waitKey(5)
