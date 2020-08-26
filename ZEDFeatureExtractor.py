@@ -5,7 +5,7 @@ Created on Mon Aug 24 11:43:25 2020
 @author: jhvroon
 """
 
-import thread
+import _thread
 
 import pyzed.sl as sl
 import cv2
@@ -175,7 +175,7 @@ class FeatureExtractor:
     def start(self):
         '''Starts the ZED2 capture. Also starts a key listener that terminates the capture when the user presses the q-key.'''
         try:
-            thread.start_new_thread( self.capture.run )
+            _thread.start_new_thread( self.capture.run )
             
             def stopFunction(capture:CaptureZEDFeatures):
                 key = ''
@@ -184,7 +184,7 @@ class FeatureExtractor:
                 capture.stop()
                 for actor in self.actors:
                     actor.stop()
-            thread.start_new_thread( stopFunction , (self.capture) )
+            _thread.start_new_thread( stopFunction , (self.capture) )
         except:
             print("Error: unable to start thread")
 
