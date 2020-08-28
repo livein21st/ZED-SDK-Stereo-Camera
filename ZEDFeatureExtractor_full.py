@@ -6,7 +6,7 @@ Created on Wed Aug 26 10:50:05 2020
 """
 
 
-import thread
+import threading
 
 import pyzed.sl as sl
 import cv2
@@ -35,7 +35,7 @@ class Feature:
         self.label = label
         self.actors = actors
         self.dependentOn = dependentOn
-        self.value
+        self.value = 0
         
         self.needsTrackPeople = False
         
@@ -69,8 +69,8 @@ class NaiveDistance(Feature):
     '''
     dependentOn = []
     
-    def __init__(self, actors):
-        super.__init__(naiveDistanceLabel,actors,NaiveDistance.dependentOn)
+    def __init__(self, actors:List):
+        super().__init__(naiveDistanceLabel,actors,NaiveDistance.dependentOn)
         self.actors = actors
         self.needsTrackPeople = True
         
@@ -106,7 +106,7 @@ class Actor:
         values: dictionary that holds the values that the actor works from
         expectsValues (List): stores the labels of the expected values
     '''
-    def __init__(self, expectsValues:List):
+    def __init__(self, expectsValues):
         self.values = {}
         self.expectsValues = expectsValues
         
@@ -146,13 +146,17 @@ class Cv2Plotter(Actor):
     expectsValues.append(naiveDistanceLabel) #list of distances, one for each detected object
     
     def __init__(self):
-        super.__init__(Cv2Plotter.expectsValues)
+        super().__init__(Cv2Plotter.expectsValues)
     
     def update(self,capture):
         '''Plot the next frame.'''
         obj_array = capture.getObjectArray()
-        image_data = capture.getImageData()
+        image_data = capture.getImage().get_data() #Data()
         distances = self.values[naiveDistanceLabel]
+
+        # if len(distances) > 1:
+        #     if distances[1] < 1.5:
+        #         cv2.rectangle(image_data, (0,0), (100, 100), (255, 0, 0))
         
         # For each tracked object....
         for i in range(len(obj_array)):
@@ -258,11 +262,12 @@ class CaptureZEDFeatures:
         
         
     
-    def run(self):
+    def run(self, name):
         '''Runs the camera and feature extraction until the stop function is called.'''
         self.stopped = False
-        
-        while not self.stopped:
+
+        key = 0        
+        while key != 113:
             # Grab an image, a RuntimeParameters object must be given to grab()
             if self.zed.grab(self.runtime_parameters) == sl.ERROR_CODE.SUCCESS:
                 # A new image is available if grab() returns SUCCESS
@@ -275,13 +280,15 @@ class CaptureZEDFeatures:
                 self.image_data = self.image.get_data()
                   
                 self.featureExtractor.onFeatureUpdate()
+
+            key = cv2.waitKey(5)
     
         # Close the camera
         self.zed.close()      
             
-    def stop(self):
-        '''Stops the camera and feature extraction. (Note: you cannot restart the camera after calling stop, as currently the camera object is destroyed.)'''
-        self.stopped = True
+    # def stop(self):
+    #     '''Stops the camera and feature extraction. (Note: you cannot restart the camera after calling stop, as currently the camera object is destroyed.)'''
+    #     self.stopped = True
             
     def getObjects(self):
         '''Returns the objects detected in the most recent frame from the camera.'''
@@ -344,22 +351,16 @@ class FeatureExtractor:
     def start(self):
         '''Starts the ZED2 capture. Also starts a key listener that terminates the capture when the user presses the q-key.'''
         try:
-            thread.start_new_thread( self.capture.run )
-            
-            def stopFunction(capture:CaptureZEDFeatures):
-                key = ''
-                while key != 113:
-                    key = cv2.waitKey(5)
-                capture.stop()
-                for actor in self.actors:
-                    actor.stop()
-            thread.start_new_thread( stopFunction , (self.capture) )
+            captureThread = threading.Thread( target=self.capture.run, args=(1,), daemon=False )
+            captureThread.start()
+            # self.capture.run()
+        
         except:
             print("Error: unable to start thread")
 
     def onFeatureUpdate(self):
         '''Should be called whenever a new frame has been loaded from the ZED, computes all feature values for the next frame, and updates all actors.'''
-        for feature in self.feature:
+        for feature in self.features:
             feature.compute(self.capture)
         for actor in self.actors:
             actor.update(self.capture)
@@ -375,7 +376,7 @@ plotter = Cv2Plotter()
 actors = [plotter]
 
 # 2. Construct all the features (and connect them to the actors as needed)
-distance = NaiveDistance(plotter)
+distance = NaiveDistance([plotter])
 features = [distance]
 
 # 3. Create the extractor and run
