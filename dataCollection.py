@@ -76,7 +76,7 @@ def main():
     #creating an excel sheet to collect data
     x = datetime.datetime.now()
     filename = 'data' + str(x) + '.xlsx'
-    workbook = xlsxwriter.Workbook(filename)
+    workbook = xlsxwriter.Workbook(filename, {'constant_memory': True})
     worksheet = workbook.add_worksheet()
 
     worksheet.write('A1', 'ID')
