@@ -127,13 +127,13 @@ def main():
                 cv2.putText(image_data, obj_distance, (int(bounding_box[0,0]),int(bounding_box[0,1]-10)), cv2.FONT_HERSHEY_SIMPLEX, 0.6,(255,255,255),1)
 
                 #collecting data in excelsheet
-                if obj_data:
+                if obj_data and obj_label == "Person":
                     worksheet.write(row, col, obj_id)
                     worksheet.write(row, col + 1, obj_label)
-                    worksheet.write(row, col + 2, obj_position[0])
-                    worksheet.write(row, col + 3, obj_position[1])
-                    worksheet.write(row, col + 4, obj_position[2])
-                    worksheet.write(row, col + 5, distance)
+                    worksheet.write(row, col + 2, (str(obj_position[0])))
+                    worksheet.write(row, col + 3, (str(obj_position[1])))
+                    worksheet.write(row, col + 4, (str(obj_position[2])))
+                    worksheet.write(row, col + 5, (str(distance)))
 
                     row +=1
 
